@@ -1,8 +1,6 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
+import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,6 +9,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { signupWithEmail } from "../../../firebaseAuthHelpers"
+
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -24,8 +24,9 @@ export default function SignupPage() {
   const router = useRouter()
   const { toast } = useToast()
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsLoading(true)
 
     if (formData.password !== formData.confirmPassword) {
       toast({
@@ -33,20 +34,25 @@ export default function SignupPage() {
         description: "Passwords don't match",
         variant: "destructive",
       })
+      setIsLoading(false)
       return
     }
 
-    setIsLoading(true)
-
-    // Simulate signup
-    setTimeout(() => {
+    try {
+      await signupWithEmail(formData.email, formData.password, formData.name)
       toast({
-        title: "Account created!",
-        description: "Welcome to TRENDIFY MART! You can now start shopping.",
+        title: "Signup successful!",
+        description: "Account created. Welcome!",
       })
       router.push("/")
-      setIsLoading(false)
-    }, 1000)
+    } catch (error: any) {
+      toast({
+        title: "Signup failed!",
+        description: error.message,
+        variant: "destructive",
+      })
+    }
+    setIsLoading(false)
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,7 +82,7 @@ export default function SignupPage() {
             </CardHeader>
 
             <CardContent className="px-8 pb-8">
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSignup} className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-white uppercase tracking-wide font-bold">
                     FULL NAME

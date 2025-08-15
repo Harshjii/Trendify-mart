@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Card, CardContent } from "@/components/ui/card"
@@ -10,75 +10,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Star, Heart, ShoppingBag, Filter } from "lucide-react"
 import { useCart } from "@/hooks/use-cart"
 import { useToast } from "@/hooks/use-toast"
-
-const products = [
-  {
-    id: 1,
-    name: "URBAN SHADOW HOODIE",
-    price: 89.99,
-    image: "/black-urban-hoodie-streetwear.png",
-    category: "Streetwear",
-    rating: 4.8,
-    reviews: 124,
-    isNew: true,
-  },
-  {
-    id: 2,
-    name: "MIDNIGHT DENIM JACKET",
-    price: 129.99,
-    image: "/vintage-denim-jacket-fashion.png",
-    category: "Casual",
-    rating: 4.7,
-    reviews: 89,
-    isNew: true,
-  },
-  {
-    id: 6,
-    name: "ESSENTIAL BLACK TEE",
-    price: 29.99,
-    originalPrice: 39.99,
-    image: "/oversized-black-tee-streetwear.png",
-    category: "Casual",
-    rating: 4.8,
-    reviews: 234,
-    isBestseller: true,
-  },
-  {
-    id: 7,
-    name: "TACTICAL CARGO PANTS",
-    price: 79.99,
-    image: "/black-cargo-pants-streetwear.png",
-    category: "Streetwear",
-    rating: 4.9,
-    reviews: 189,
-    isBestseller: true,
-  },
-  {
-    id: 8,
-    name: "NOIR LEATHER JACKET",
-    price: 249.99,
-    image: "/black-bomber-streetwear.png",
-    category: "Formal",
-    rating: 4.7,
-    reviews: 156,
-    isBestseller: true,
-  },
-  {
-    id: 12,
-    name: "DISTRESSED BLACK DENIM",
-    price: 89.99,
-    image: "/distressed-black-jeans-streetwear.png",
-    category: "Streetwear",
-    rating: 4.6,
-    reviews: 203,
-  },
-]
+import { fetchProducts } from "../../firebaseFirestoreHelpers"
 
 export default function ProductsPage() {
+  const [products, setProducts] = useState([])
   const [sortBy, setSortBy] = useState("featured")
   const [filterBy, setFilterBy] = useState("all")
   const { addItem } = useCart()
   const { toast } = useToast()
+
+  useEffect(() => {
+    fetchProducts().then(setProducts)
+  }, [])
 
   const handleAddToCart = (product: (typeof products)[0]) => {
     addItem({

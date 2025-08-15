@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Mail, ArrowLeft, CheckCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { resetPassword } from "../../../firebaseAuthHelpers" // <-- fixed import path
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("")
@@ -17,19 +18,25 @@ export default function ForgotPasswordPage() {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const { toast } = useToast()
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
-    // Simulate password reset
-    setTimeout(() => {
-      setIsSubmitted(true)
+    try {
+      await resetPassword(email)
       toast({
-        title: "Reset link sent!",
-        description: "Check your email for password reset instructions.",
+        title: "Email Sent!",
+        description: "Check your inbox for password reset instructions.",
       })
-      setIsLoading(false)
-    }, 1000)
+      setIsSubmitted(true)
+    } catch (error: any) {
+      toast({
+        title: "Error!",
+        description: error.message,
+        variant: "destructive",
+      })
+    }
+    setIsLoading(false)
   }
 
   if (isSubmitted) {
@@ -83,7 +90,7 @@ export default function ForgotPasswordPage() {
             </CardHeader>
 
             <CardContent className="px-8 pb-8">
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleForgotPassword} className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-white uppercase tracking-wide font-bold">
                     EMAIL ADDRESS

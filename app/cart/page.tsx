@@ -10,9 +10,19 @@ import Link from "next/link"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { ScrollReveal } from "@/components/animations/scroll-reveal"
+import { useEffect, useState } from "react"
+import { saveCart } from "../../firebaseFirestoreHelpers" // path adjust karein
 
 export default function CartPage() {
   const { items, total, updateQuantity, removeItem } = useCart()
+  const [cart, setCart] = useState([])
+
+  // Example: Add to cart
+  const addToCart = (product) => {
+    const newCart = [...cart, product]
+    setCart(newCart)
+    saveCart(userId, newCart)
+  }
 
   if (items.length === 0) {
     return (

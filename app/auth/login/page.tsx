@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { loginWithEmail } from "../../../firebaseAuthHelpers" // <-- fixed import path
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -24,23 +25,21 @@ export default function LoginPage() {
     e.preventDefault()
     setIsLoading(true)
 
-    // Simulate login
-    setTimeout(() => {
-      if (email === "admin@gmail.com" && password === "admin123") {
-        toast({
-          title: "Welcome back!",
-          description: "Redirecting to admin dashboard...",
-        })
-        router.push("/admin")
-      } else {
-        toast({
-          title: "Login successful!",
-          description: "Welcome back to TRENDIFY MART!",
-        })
-        router.push("/")
-      }
-      setIsLoading(false)
-    }, 1000)
+    try {
+      await loginWithEmail(email, password)
+      toast({
+        title: "Login successful!",
+        description: "Welcome back to TRENDIFY MART!",
+      })
+      router.push("/")
+    } catch (error: any) {
+      toast({
+        title: "Login failed!",
+        description: error.message,
+        variant: "destructive",
+      })
+    }
+    setIsLoading(false)
   }
 
   return (
